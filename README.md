@@ -1,0 +1,2 @@
+# JenkinDemo
+pratice for jenkin
