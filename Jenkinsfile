@@ -42,5 +42,13 @@ pipeline {
                 }
             }
         }
+        stage('Division Stage') {
+            steps {
+                script{
+                    println "divide number"
+                    println doDiv(a,b);
+                }
+            }
+        }
     }
 }
