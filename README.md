@@ -22,3 +22,7 @@ there are many ways to set up credentials
 ### Username with Password
 <img width="912" alt="Screenshot 2023-04-13 at 4 10 31 PM" src="https://user-images.githubusercontent.com/89962651/231734677-bdce5b8c-1eb6-4016-b1d7-22388cf067fd.png">
 <img width="912" alt="Screenshot 2023-04-13 at 4 10 43 PM" src="https://user-images.githubusercontent.com/89962651/231734688-fec2a494-a1ae-4388-b047-441e533d7a7a.png">
+
+### SSH username with private key
+<img width="979" alt="Screenshot 2023-04-13 at 5 10 01 PM" src="https://user-images.githubusercontent.com/89962651/231747982-983c5a15-cb23-4931-a8f2-bc1295efcea7.png">
+<img width="979" alt="Screenshot 2023-04-13 at 5 10 11 PM" src="https://user-images.githubusercontent.com/89962651/231747999-ec971eed-2669-4682-b1a7-843cee2ddcb2.png">
