@@ -267,7 +267,7 @@ pipeline {
     agent any
     environment{
         AGORA_TOKEN = credentials('agora_token')
-        slack_token = credentials('slack_notification')
+        // slack_token = credentials('slack_notification')
     }
 
     stages {
