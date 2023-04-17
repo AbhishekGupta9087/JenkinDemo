@@ -269,7 +269,7 @@ pipeline {
         AGORA_TOKEN = credentials('agora_token')
         slack_token = credentials('slack_notification')
     }
-    
+
     stages {
         stage('log') {
             steps {
@@ -339,4 +339,5 @@ pipeline {
                 }
             }
         }
+    }
 }
