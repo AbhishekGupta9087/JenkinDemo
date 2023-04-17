@@ -351,7 +351,7 @@ pipeline {
                         try{
                             def status = 'STARTING'
                             def retryCount = 5
-                            def masterProcessId = 'deec56ac-370c-4682-b1e5-863c395d4bf5'
+                            masterProcessId = 'deec56ac-370c-4682-b1e5-863c395d4bf5'
                             for (int i = 1; (i <= retryCount) && (status != 'COMPLETE' && status != 'FAILED'); i++) {
                             
                                 Thread.sleep(120) //120secs
@@ -434,7 +434,7 @@ pipeline {
                         try{
                             def status = 'STARTING'
                             def retryCount = 5
-                            def dataProcessId='deec56ac-370c-4682-b1e5-863c395d4bf5'
+                            dataProcessId='deec56ac-370c-4682-b1e5-863c395d4bf5'
                             for (int i = 1; (i <= retryCount) && (status != 'COMPLETE' && status != 'FAILED'); i++) {
                             
                                 Thread.sleep(120) //120secs
