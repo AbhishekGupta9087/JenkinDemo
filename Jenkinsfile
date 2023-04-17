@@ -339,5 +339,247 @@ pipeline {
                 }
             }
         }
+        stage('Check Master Instance Status and Fetch IP') {
+            steps {
+                echo 'Wait for agora to spawn the master instances, hit agora status API to check if the instance creation is complete'
+                echo 'Repeat the process till master instance creation is complete or there is some failure'
+                echo 'datacenter 2-' + "${params.datacenter}"
+                retry(5){
+                    script{
+                        lastStageName = env.STAGE_NAME                 
+                        def message                         
+                        try{
+                            def status = 'STARTING'
+                            def retryCount = 5
+                            for (int i = 1; (i <= retryCount) && (status != 'COMPLETE' && status != 'FAILED'); i++) {
+                            
+                                Thread.sleep(120) //120secs
+                                sleep(120)
+                                try {
+                                    def response = httpRequest url: ' http://172.18.16.219:9000/_/lro/'+ masterProcessId
+                            
+                                    println response.content
+                                    def jsonResponse = new groovy.json.JsonSlurper().parseText(response.content)
+
+                                    //message = "Response while creating agora master instances : "+response.content
+                                    //logMessage(message,lastStageName,2)  
+
+                                    def id = jsonResponse.id
+                                    status = jsonResponse.status
+                                    
+                                    println id
+                                    println status
+                                    
+                                } catch(Exception e){
+                                    echo "sleep exception"
+                                }
+                            }
+                            
+                            //next stage
+                            if(status == 'COMPLETE'){
+                                retry(3){
+                                   try{
+                                        def body = '{"request": {"datacenter":"'+"${params.datacenter}"+'", "gcp_project_id": "tkpd-stag-search-platform-e7c9", "resource_type": "instances","namespace": "vatsal-api","namespace_variation": "general-instance"} }'
+                                        def response = httpRequest httpMode: 'POST',
+                                                                  contentType: 'APPLICATION_JSON',
+                                                                  url: 'http://172.18.33.3:9000/v1/fetch/ip',
+                                                                  requestBody: '{"request": {"datacenter":"'+"${params.datacenter}"+'", "gcp_project_id": "'+"${params.gcp_project_id}"+'", "resource_type": "instances","namespace":"sp-es-'+"${params.namespace}"+'", "namespace_variation":"'+ master_namespace_variation +'"} }',
+                                                                  customHeaders: [[name: 'agora-webhook-token', value: env.AGORA_TOKEN]]
+                                        println response.content
+                                        
+                                        def jsonResponse = new groovy.json.JsonSlurper().parseText(response.content)
+                                        def total_instances = jsonResponse.total_agora
+
+                                        //message = "Response while fetching agora master instances IP : "+response.content
+                                        //logMessage(message,lastStageName,2)  
+                                        
+                                        if (total_instances==0){
+                                            Thread.sleep(30)
+                                            error 'error creating instances'
+                                        }
+                                        
+                                        // def instanceIPs = []
+                                        for (int i = 0; i < total_instances; i++) {
+                                            masterInstanceIPs.add(jsonResponse.instance_agora[i].network_ip)
+                                        }
+                                        
+                                        println masterInstanceIPs
+                                   } catch(Exception e){
+                                        echo "inner exception" + e
+                                        error 'inner exception'
+                                        logError(e,lastStageName)                                        
+                                   }
+                                }
+                            }
+                        }catch (Exception e) {
+                                echo "outer exception"
+                                //hit agora to create instance
+                                error 'outer exception'
+                                logError(e,lastStageName)   
+                        }
+                    }
+                }
+            }
+        }
+        stage('Check Data Instance Status and Fetch IP') {
+            steps {
+                echo 'Wait for agora to spawn the master instances, hit agora status API to check if the instance creation is complete'
+                echo 'Repeat the process till master instance creation is complete or there is some failure'
+                
+                retry(3){
+                    script{
+                        lastStageName = env.STAGE_NAME                 
+                        def message                          
+                        try{
+                            def status = 'STARTING'
+                            def retryCount = 5
+                            for (int i = 1; (i <= retryCount) && (status != 'COMPLETE' && status != 'FAILED'); i++) {
+                            
+                                Thread.sleep(120) //120secs
+                                sleep(120)
+                                try {
+                                    def response = httpRequest url: ' http://172.18.16.219:9000/_/lro/' + dataProcessId
+                            
+                                    println response.content
+                                    def jsonResponse = new groovy.json.JsonSlurper().parseText(response.content)
+
+                                    //message = "Response while creating agora master instances : "+response.content
+                                    //logMessage(message,lastStageName,2)  
+
+                                    def id = jsonResponse.id
+                                    status = jsonResponse.status
+                                    
+                                    println id
+                                    println status
+                                    
+                                } catch(Exception e){
+                                    echo "sleep exception"
+                                }
+                            }
+                            
+                            //next stage
+                            if(status == 'COMPLETE'){
+                                retry(3){
+                                   try{
+                                        def response = httpRequest httpMode: 'POST',
+                                                                  contentType: 'APPLICATION_JSON',
+                                                                  url: 'http://172.18.33.3:9000/v1/fetch/ip',
+                                                                  requestBody: '{"request": {"datacenter":"'+"${params.datacenter}"+'", "gcp_project_id": "'+"${params.gcp_project_id}"+'", "resource_type": "instances","namespace":"sp-es-'+"${params.namespace}"+'","namespace_variation":"'+ data_namespace_variation +'"} }',
+                                                                  customHeaders: [[name: 'agora-webhook-token', value: env.AGORA_TOKEN]]
+                                        println response.content
+                                        
+                                        def jsonResponse = new groovy.json.JsonSlurper().parseText(response.content)
+                                        //message = "Response while fetching agora master instances IP : "+response.content
+                                        //logMessage(message,lastStageName,2)                                               
+                                        def total_instances = jsonResponse.total_agora
+                                        if (total_instances==0){
+                                            Thread.sleep(30)
+                                            error 'error creating instances'
+                                        }                                        
+                                        // def instanceIPs = []
+                                        for (int i = 0; i < total_instances; i++) {
+                                            dataInstanceIPs.add(jsonResponse.instance_agora[i].network_ip)
+                                        }
+                                        
+                                        println dataInstanceIPs
+                                   } catch(Exception e){
+                                       echo "inner exception" + e
+                                       error 'inner exception'
+                                       logError(e,lastStageName) 
+                                   }
+                                }
+                            }
+                        }catch (Exception e) {
+                                echo "outer exception"
+                                //hit agora to create instance
+                                error 'outer exception'
+                                logError(e,lastStageName) 
+                        }
+                    }
+                }
+            }
+        }
+        stage('Check Coor Instance Status and Fetch IP') {
+            steps {
+                echo 'Wait for agora to spawn the coor instances, hit agora status API to check if the instance creation is complete'
+                echo 'Repeat the process till coor instance creation is complete or there is some failure'
+                echo 'datacenter 2-' + "${params.datacenter}"
+                retry(5){
+                    script{
+                        lastStageName = env.STAGE_NAME                 
+                        def message                         
+                        try{
+                            def status = 'STARTING'
+                            def retryCount = 5
+                            for (int i = 1; (i <= retryCount) && (status != 'COMPLETE' && status != 'FAILED'); i++) {
+                            
+                                Thread.sleep(120) //120secs
+                                sleep(120)
+                                try {
+                                    def response = httpRequest url: ' http://172.18.16.219:9000/_/lro/'+ coorProcessId
+                            
+                                    println response.content
+                                    def jsonResponse = new groovy.json.JsonSlurper().parseText(response.content)
+
+                                    //message = "Response while creating agora master instances : "+response.content
+                                    //logMessage(message,lastStageName,2)  
+
+                                    def id = jsonResponse.id
+                                    status = jsonResponse.status
+                                    
+                                    println id
+                                    println status
+                                    
+                                } catch(Exception e){
+                                    echo "sleep exception"
+                                }
+                            }
+                            
+                            //next stage
+                            if(status == 'COMPLETE'){
+                                retry(3){
+                                   try{
+                                        def body = '{"request": {"datacenter":"'+"${params.datacenter}"+'", "gcp_project_id": "tkpd-stag-search-platform-e7c9", "resource_type": "instances","namespace": "vatsal-api","namespace_variation": "general-instance"} }'
+                                        def response = httpRequest httpMode: 'POST',
+                                                                  contentType: 'APPLICATION_JSON',
+                                                                  url: 'http://172.18.33.3:9000/v1/fetch/ip',
+                                                                  requestBody: '{"request": {"datacenter":"'+"${params.datacenter}"+'", "gcp_project_id": "'+"${params.gcp_project_id}"+'", "resource_type": "instances","namespace":"sp-es-'+"${params.namespace}"+'", "namespace_variation":"'+ coor_namespace_variation +'"} }',
+                                                                  customHeaders: [[name: 'agora-webhook-token', value: env.AGORA_TOKEN]]
+                                        println response.content
+                                        
+                                        def jsonResponse = new groovy.json.JsonSlurper().parseText(response.content)
+                                        def total_instances = jsonResponse.total_agora
+
+                                        //message = "Response while fetching agora master instances IP : "+response.content
+                                        //logMessage(message,lastStageName,2)  
+                                        
+                                        if (total_instances==0){
+                                            Thread.sleep(30)
+                                            error 'error creating instances'
+                                        }
+                                        
+                                        // def instanceIPs = []
+                                        for (int i = 0; i < total_instances; i++) {
+                                            coorInstanceIPs.add(jsonResponse.instance_agora[i].network_ip)
+                                        }
+                                        
+                                        println coorInstanceIPs
+                                   } catch(Exception e){
+                                        echo "inner exception" + e
+                                        error 'inner exception'
+                                        logError(e,lastStageName)                                        
+                                   }
+                                }
+                            }
+                        }catch (Exception e) {
+                                echo "outer exception"
+                                //hit agora to create instance
+                                error 'outer exception'
+                                logError(e,lastStageName)   
+                        }
+                    }
+                }
+            }
+        }
     }
 }
