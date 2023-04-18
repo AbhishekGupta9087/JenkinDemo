@@ -277,13 +277,13 @@ pipeline {
                 
                 script{
                     if(params.'namespace_variation' != '') {
-                        master_namespace_variation = params.'namespace_variation' + '-master'
-                        data_namespace_variation = params.'namespace_variation' + '-data'
-                        coor_namespace_variation = params.'namespace_variation' + '-coor'
+                        master_namespace_variation = params.'namespace_variation' + '-master-data'
+                        data_namespace_variation = params.'namespace_variation' + '-master-data'
+                        coor_namespace_variation = params.'namespace_variation' + '-master-data'
                     }else {
-                        master_namespace_variation = 'master'
-                        data_namespace_variation = 'data'
-                        coor_namespace_variation = 'coor'
+                        master_namespace_variation = 'master-data'
+                        data_namespace_variation = 'master-data'
+                        coor_namespace_variation = 'master-data'
                     }
                     oldClusterName = params.'old_cluster_name'
                     activity = params.'activity'
