@@ -47,7 +47,7 @@ def logError(Exception e,String stageName) {
         def expMessage = e.getMessage()
         def pste = printCompleteStackTrace(e)
         def ste = expMessage+'\n'+pste
-        Thread.sleep(1000)
+        // Thread.sleep(1000)
         def logStr = String.format("[%d] [%s] Build_Number:%s Requestor:%s Cluster_Name:%s Stage_Name:%s - [%s] %s"
         , tid,logType,buildNum,requestor,clusterName,stageName,className,ste)
         def cmd = sprintf('echo "%s" >> /var/log/jenkinslog/errorlogs',logStr)
@@ -354,8 +354,8 @@ pipeline {
                             masterProcessId = 'deec56ac-370c-4682-b1e5-863c395d4bf5'
                             for (int i = 1; (i <= retryCount) && (status != 'COMPLETE' && status != 'FAILED'); i++) {
                             
-                                Thread.sleep(120) //120secs
-                                sleep(120)
+                                // Thread.sleep(120) //120secs
+                                // sleep(120)
                                 try {
                                     def response = httpRequest url: ' http://172.18.16.219:9000/_/lro/'+ masterProcessId
                             
@@ -395,7 +395,7 @@ pipeline {
                                         //logMessage(message,lastStageName,2)  
                                         
                                         if (total_instances==0){
-                                            Thread.sleep(30)
+                                            // Thread.sleep(30)
                                             error 'error creating instances'
                                         }
                                         
@@ -437,8 +437,8 @@ pipeline {
                             dataProcessId='deec56ac-370c-4682-b1e5-863c395d4bf5'
                             for (int i = 1; (i <= retryCount) && (status != 'COMPLETE' && status != 'FAILED'); i++) {
                             
-                                Thread.sleep(120) //120secs
-                                sleep(120)
+                                // Thread.sleep(120) //120secs
+                                // sleep(120)
                                 try {
                                     def response = httpRequest url: ' http://172.18.16.219:9000/_/lro/' + dataProcessId
                             
@@ -475,7 +475,7 @@ pipeline {
                                         //logMessage(message,lastStageName,2)                                               
                                         def total_instances = jsonResponse.total_agora
                                         if (total_instances==0){
-                                            Thread.sleep(30)
+                                            // Thread.sleep(30)
                                             error 'error creating instances'
                                         }                                        
                                         // def instanceIPs = []
@@ -516,8 +516,8 @@ pipeline {
                             coorProcessId="deec56ac-370c-4682-b1e5-863c395d4bf5"
                             for (int i = 1; (i <= retryCount) && (status != 'COMPLETE' && status != 'FAILED'); i++) {
                             
-                                Thread.sleep(120) //120secs
-                                sleep(120)
+                                // Thread.sleep(120) //120secs
+                                // sleep(120)
                                 try {
                                     def response = httpRequest url: ' http://172.18.16.219:9000/_/lro/'+ coorProcessId
                             
@@ -557,7 +557,7 @@ pipeline {
                                         //logMessage(message,lastStageName,2)  
                                         
                                         if (total_instances==0){
-                                            Thread.sleep(30)
+                                            // Thread.sleep(30)
                                             error 'error creating instances'
                                         }
                                         
